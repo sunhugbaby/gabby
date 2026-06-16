@@ -53,7 +53,7 @@
     padding: 0.5rem 1rem 0.5rem 0.5rem;
     cursor: pointer;
     transition: transform 0.2s;
-    text-decoration: none;
+    user-select: none;
   }
   .music-player:hover { transform: scale(1.04); }
   .music-btn {
@@ -87,7 +87,9 @@
     background: var(--rose);
     border-radius: 2px;
     animation: bar 0.9s ease-in-out infinite;
+    animation-play-state: paused;
   }
+  .music-bars.playing span { animation-play-state: running; }
   .music-bars span:nth-child(1) { height: 6px;  animation-delay: 0s; }
   .music-bars span:nth-child(2) { height: 12px; animation-delay: 0.2s; }
   .music-bars span:nth-child(3) { height: 8px;  animation-delay: 0.4s; }
@@ -212,8 +214,8 @@
   }
   .wish-names { font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-top: 2rem; }
 
-  /* ── SECTION 3: GIFT ── */
-  #s3 { background: var(--blush); flex-direction: column; }
+  /* ── SECTION 4: GIFT OPTIONS ── */
+  #s4 { background: var(--blush); flex-direction: column; align-items: center; }
 
   .gift-header { text-align: center; margin-bottom: 3.5rem; max-width: 600px; }
   .gift-header .eyebrow { color: var(--rose); opacity: 1; animation: none; }
@@ -238,6 +240,7 @@
     font-size: 0.85rem;
     letter-spacing: 0.12em;
     margin-bottom: 3rem;
+    white-space: nowrap;
   }
   .voucher-badge strong { color: var(--gold); font-weight: 500; }
 
@@ -277,7 +280,7 @@
   }
   .card-link:hover { border-color: var(--rose); }
 
-  /* ── SECTION 3: PIGGY BANK ── */
+  /* ── SECTION 3: GIFT BOX / SHAKE ── */
   #s3 { background: var(--espresso); flex-direction: column; }
 
   .piggy-header { text-align: center; margin-bottom: 2.5rem; }
@@ -285,50 +288,88 @@
   .piggy-header h2 {
     font-family: 'Cormorant Garamond', serif;
     font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 300;
-    color: #F5EDE8;
+    font-weight: 300; color: #F5EDE8;
     margin: 0.75rem 0 0.5rem;
   }
   .piggy-header p { font-size: 0.9rem; font-weight: 300; color: var(--muted); }
 
-  /* the piggy bank scene */
-  .piggy-scene {
+  .gift-box-wrap {
     position: relative;
-    width: 220px;
-    height: 220px;
+    width: 180px; height: 180px;
     cursor: pointer;
     user-select: none;
   }
-  .piggy-scene:hover .piggy-svg { transform: scale(1.06) rotate(-3deg); }
-  .piggy-svg {
+
+  .gift-box-svg {
     width: 100%; height: 100%;
-    transition: transform 0.2s ease;
-    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4));
+    filter: drop-shadow(0 8px 28px rgba(0,0,0,0.5));
+    transition: transform 0.15s ease;
   }
 
-  /* wobble on hover */
-  @keyframes piggyWobble {
+  @keyframes giftIdle {
+    0%,100% { transform: rotate(0deg) translateY(0); }
+    25%      { transform: rotate(-4deg) translateY(-4px); }
+    75%      { transform: rotate(4deg) translateY(-4px); }
+  }
+  .gift-box-wrap.idle .gift-box-svg {
+    animation: giftIdle 2.4s ease-in-out infinite;
+  }
+
+  @keyframes giftShake {
     0%,100% { transform: rotate(0deg) scale(1); }
-    25%      { transform: rotate(-6deg) scale(1.04); }
-    75%      { transform: rotate(6deg) scale(1.04); }
+    15%      { transform: rotate(-12deg) scale(1.05); }
+    30%      { transform: rotate(12deg) scale(1.05); }
+    45%      { transform: rotate(-10deg) scale(1.08); }
+    60%      { transform: rotate(10deg) scale(1.08); }
+    75%      { transform: rotate(-6deg) scale(1.05); }
+    90%      { transform: rotate(6deg) scale(1.05); }
   }
-  .piggy-scene:active .piggy-svg { animation: piggyWobble 0.35s ease; }
+  .gift-box-wrap.shaking .gift-box-svg {
+    animation: giftShake 0.5s ease-in-out forwards;
+  }
 
-  /* shatter pieces */
+  @keyframes giftExplode {
+    0%   { transform: scale(1); opacity: 1; }
+    40%  { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0); opacity: 0; }
+  }
+  .gift-box-wrap.exploding .gift-box-svg {
+    animation: giftExplode 0.4s ease-in forwards;
+  }
+
+  /* shard pieces */
   .shard {
-    position: absolute;
+    position: fixed;
     pointer-events: none;
-    transform-origin: center center;
     animation: shardFly var(--dur) ease-out forwards;
-    opacity: 1;
   }
   @keyframes shardFly {
     0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
-    60%  { opacity: 0.8; }
-    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0.3); opacity: 0; }
+    70%  { opacity: 0.7; }
+    100% { transform: translate(var(--tx),var(--ty)) rotate(var(--rot)) scale(0.2); opacity: 0; }
   }
 
-  /* voucher card that appears */
+  /* shake progress ring */
+  .shake-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 160px; height: 160px;
+    pointer-events: none;
+  }
+  .shake-ring circle {
+    fill: none;
+    stroke: var(--rose);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 471;
+    stroke-dashoffset: 471;
+    transition: stroke-dashoffset 0.15s ease;
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+
+  /* voucher card */
   .voucher-card {
     background: var(--cream);
     border-radius: 20px;
@@ -337,50 +378,20 @@
     display: flex; flex-direction: column;
     align-items: center; gap: 10px;
     box-shadow: 0 8px 40px rgba(0,0,0,0.35);
-    opacity: 0;
-    transform: scale(0.7);
+    opacity: 0; transform: scale(0.7);
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
     pointer-events: none;
   }
-  .voucher-card.visible {
-    opacity: 1; transform: scale(1); pointer-events: auto;
-  }
-  .voucher-card .v-label {
-    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted);
-  }
-  .voucher-card .v-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.4rem; font-weight: 400; color: var(--espresso); line-height: 1.3;
-  }
-  .voucher-card .v-code {
-    font-size: 1.3rem; font-weight: 500; letter-spacing: 0.2em;
-    color: var(--rose); background: var(--blush);
-    padding: 0.4rem 1.2rem; border-radius: 8px; margin-top: 4px;
-  }
+  .voucher-card.visible { opacity: 1; transform: scale(1); pointer-events: auto; }
+  .voucher-card .v-label { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); }
+  .voucher-card .v-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 400; color: var(--espresso); line-height: 1.3; }
+  .voucher-card .v-code { font-size: 1.3rem; font-weight: 500; letter-spacing: 0.2em; color: var(--rose); background: var(--blush); padding: 0.4rem 1.2rem; border-radius: 8px; margin-top: 4px; }
   .voucher-card .v-sub { font-size: 0.75rem; color: var(--muted); font-weight: 300; }
 
-  .piggy-hint {
-    margin-top: 1.2rem;
-    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--muted); opacity: 1; transition: opacity 0.5s;
-  }
-  .piggy-done-msg {
-    margin-top: 1rem; font-size: 0.9rem; color: var(--gold);
-    font-family: 'Cormorant Garamond', serif; font-style: italic;
-    opacity: 0; transition: opacity 0.6s;
-  }
-  .piggy-scroll-nudge {
-    margin-top: 1.5rem; font-size: 0.75rem; letter-spacing: 0.18em;
-    text-transform: uppercase; color: var(--muted);
-    opacity: 0; transition: opacity 0.8s ease;
-    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;
-  }
-  .piggy-scroll-nudge::after {
-    content: '';
-    display: block; width: 1px; height: 30px;
-    background: linear-gradient(to bottom, var(--muted), transparent);
-    animation: scrollPulse 1.8s ease-in-out infinite;
-  }
+  .piggy-hint { margin-top: 1.2rem; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); opacity: 1; transition: opacity 0.5s; text-align: center; }
+  .piggy-done-msg { margin-top: 1rem; font-size: 0.9rem; color: var(--gold); font-family: 'Cormorant Garamond', serif; font-style: italic; opacity: 0; transition: opacity 0.6s; }
+  .piggy-scroll-nudge { margin-top: 1.5rem; font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); opacity: 0; transition: opacity 0.8s ease; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .piggy-scroll-nudge::after { content: ''; display: block; width: 1px; height: 30px; background: linear-gradient(to bottom, var(--muted), transparent); animation: scrollPulse 1.8s ease-in-out infinite; }
 
   /* ── SECTION 5: FINAL WISH ── */
   #s5 { background: var(--cream); }
@@ -463,19 +474,23 @@
 <!-- FALLING PETALS -->
 <canvas id="petal-canvas" aria-hidden="true"></canvas>
 
+<!-- AUDIO -->
+<audio id="bg-audio" src="unwritten.mp3" loop preload="none"></audio>
+
 <!-- MUSIC PLAYER -->
-<a class="music-player" href="https://www.youtube.com/results?search_query=Natasha+Bedingfield+Unwritten" target="_blank" rel="noopener" title="Слушай Unwritten">
-  <div class="music-btn">
-    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+<div class="music-player" onclick="toggleMusic()" title="Unwritten">
+  <div class="music-btn" id="music-btn">
+    <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <svg id="pause-icon" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
   </div>
   <div class="music-info">
     <div class="music-title">Unwritten</div>
     <div class="music-artist">Natasha Bedingfield</div>
   </div>
-  <div class="music-bars">
+  <div class="music-bars" id="music-bars">
     <span></span><span></span><span></span><span></span>
   </div>
-</a>
+</div>
 
 <!-- NAV DOTS -->
 <nav class="nav-dots" aria-label="Навигация">
@@ -489,8 +504,8 @@
 <!-- ── S1: GREETING ── -->
 <section id="s1">
   <div class="greeting-inner">
-    <p class="eyebrow">25 · Честит рожден ден</p>
-    <h1>Честита<br><em>ти,</em><br>скъпа!</h1>
+    <p class="eyebrow">25 · 18.06.2026 </p>
+    <h1>Честит Рожден ден<br><em>Габи</em>!</h1>
     <div class="divider">
       <div class="divider-line"></div>
       <span class="divider-ornament">✦</span>
@@ -516,59 +531,60 @@
       да обичаш безгрижно
       и да намираш магия в малките неща."
     </blockquote>
-    <p class="wish-names reveal reveal-delay-2">— с любов, твоите приятели</p>
+    <p class="wish-names reveal reveal-delay-2">— с любов, твоите дружки</p>
   </div>
 </section>
 
-<!-- ── S3: PIGGY BANK ── -->
+<!-- ── S3: GIFT BOX ── -->
 <section id="s3">
   <div class="piggy-header">
     <p class="eyebrow reveal">И сега…</p>
     <h2 class="reveal reveal-delay-1"><em>твоят подарък</em></h2>
-    <p class="reveal reveal-delay-2">Счупи касичката, за да разбереш какво те чака 🐷</p>
+    <p class="reveal reveal-delay-2" id="shake-instruction">Разклати телефона, за да го отвориш 🎁</p>
   </div>
 
-  <!-- piggy bank (shown before break) -->
-  <div class="piggy-scene reveal reveal-delay-2" id="piggy-scene" onclick="breakPiggy()" title="Счупи ме!">
-    <svg class="piggy-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <!-- body -->
-      <ellipse cx="100" cy="112" rx="68" ry="58" fill="#E8A0A8"/>
-      <!-- snout -->
-      <ellipse cx="156" cy="118" rx="22" ry="16" fill="#F2B8BE"/>
-      <!-- nostrils -->
-      <circle cx="150" cy="117" r="4" fill="#C47B8A"/>
-      <circle cx="162" cy="117" r="4" fill="#C47B8A"/>
-      <!-- eye -->
-      <circle cx="130" cy="95" r="7" fill="#fff"/>
-      <circle cx="132" cy="95" r="4" fill="#3A2E2A"/>
-      <circle cx="133" cy="93" r="1.5" fill="#fff"/>
-      <!-- ear -->
-      <ellipse cx="80" cy="65" rx="16" ry="20" fill="#E8A0A8" transform="rotate(-10 80 65)"/>
-      <ellipse cx="80" cy="67" rx="9" ry="13" fill="#F2B8BE" transform="rotate(-10 80 67)"/>
-      <!-- coin slot -->
-      <rect x="88" y="55" width="24" height="5" rx="2.5" fill="#C47B8A"/>
-      <!-- legs -->
-      <rect x="72"  cy="164" x="72"  y="158" width="18" height="26" rx="9" fill="#E8A0A8"/>
-      <rect x="96"  y="160" width="18" height="24" rx="9" fill="#E8A0A8"/>
-      <rect x="110" y="158" width="18" height="26" rx="9" fill="#E8A0A8"/>
-      <!-- tail -->
-      <path d="M38 108 Q20 90 30 75 Q40 60 28 50" fill="none" stroke="#E8A0A8" stroke-width="6" stroke-linecap="round"/>
-      <!-- sheen -->
-      <ellipse cx="85" cy="88" rx="14" ry="8" fill="rgba(255,255,255,0.2)" transform="rotate(-20 85 88)"/>
-      <!-- coin glint -->
-      <circle cx="100" cy="56" r="3" fill="#F0D080" opacity="0.8"/>
+  <div class="gift-box-wrap idle reveal reveal-delay-2" id="gift-box-wrap">
+    <!-- progress ring -->
+    <svg class="shake-ring" id="shake-ring" viewBox="0 0 160 160">
+      <circle cx="80" cy="80" r="75" id="shake-progress"/>
+    </svg>
+    <!-- gift box SVG -->
+    <svg class="gift-box-svg" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg">
+      <!-- box body -->
+      <rect x="18" y="82" width="124" height="78" rx="5" fill="#C47B8A"/>
+      <!-- vertical ribbon on body -->
+      <rect x="71" y="82" width="18" height="78" fill="#B89A72"/>
+      <!-- box lid -->
+      <rect x="12" y="66" width="136" height="22" rx="5" fill="#D4929F"/>
+      <!-- horizontal ribbon on lid -->
+      <rect x="12" y="71" width="136" height="12" fill="#B89A72"/>
+      <!-- bow — left loop (clean teardrop shape) -->
+      <path d="M80 62 C72 48 48 42 52 56 C55 66 74 64 80 62Z" fill="#E8C97A"/>
+      <!-- bow — right loop -->
+      <path d="M80 62 C88 48 112 42 108 56 C105 66 86 64 80 62Z" fill="#E8C97A"/>
+      <!-- bow — left tail -->
+      <path d="M80 64 C74 70 60 78 56 74 C52 70 64 62 80 64Z" fill="#D4AF70"/>
+      <!-- bow — right tail -->
+      <path d="M80 64 C86 70 100 78 104 74 C108 70 96 62 80 64Z" fill="#D4AF70"/>
+      <!-- bow centre knot -->
+      <circle cx="80" cy="63" r="7" fill="#D4AF70"/>
+      <circle cx="80" cy="63" r="4" fill="#B89A72"/>
+      <!-- sheen on box body -->
+      <rect x="25" y="90" width="7" height="44" rx="3.5" fill="rgba(255,255,255,0.12)"/>
+      <!-- sheen on lid -->
+      <rect x="25" y="70" width="7" height="10" rx="3.5" fill="rgba(255,255,255,0.12)"/>
     </svg>
   </div>
 
-  <!-- voucher card (hidden, appears after break) -->
+  <!-- voucher card (hidden) -->
   <div class="voucher-card" id="voucher-card">
-    <span class="v-label">Твоят подарък</span>
-    <span class="v-title">Ваучер от Makaroon.bg<br>на стойност € 120</span>
-    <span class="v-code">MAKAROON-2025</span>
-    <span class="v-sub">Важи 12 месеца · makaroon.bg</span>
+    <div class="v-label">Твоят подарък</div>
+    <div class="v-title">Ваучер от Makaroon.bg<br>на стойност € 120</div>
+    <div class="v-code">MAKAROON-2025</div>
+    <div class="v-sub">Важи 12 месеца · makaroon.bg</div>
   </div>
 
-  <p class="piggy-hint reveal reveal-delay-3" id="piggy-hint">👆 Натисни касичката</p>
+  <p class="piggy-hint" id="piggy-hint">📱 Разклати телефона!</p>
   <p class="piggy-done-msg" id="piggy-done">🎉 Честито! Ваучерът е твой!</p>
   <p class="piggy-scroll-nudge" id="piggy-nudge">↓ Виж какво можеш да направиш с него</p>
 </section>
@@ -738,103 +754,104 @@
   }
   animatePetals();
 
-  // ── PIGGY BANK BREAK ──
-  let piggyBroken = false;
+  // ── MUSIC PLAYER ──
+  const audio       = document.getElementById('bg-audio');
+  const playIcon    = document.getElementById('play-icon');
+  const pauseIcon   = document.getElementById('pause-icon');
+  const musicBars   = document.getElementById('music-bars');
+  let   isPlaying   = false;
 
-  function breakPiggy() {
-    if (piggyBroken) return;
-    piggyBroken = true;
+  function toggleMusic() {
+    if (isPlaying) {
+      audio.pause();
+      playIcon.style.display  = 'block';
+      pauseIcon.style.display = 'none';
+      musicBars.classList.remove('playing');
+    } else {
+      audio.play().catch(()=>{});
+      playIcon.style.display  = 'none';
+      pauseIcon.style.display = 'block';
+      musicBars.classList.add('playing');
+    }
+    isPlaying = !isPlaying;
+  }
 
-    const scene = document.getElementById('piggy-scene');
-    const rect  = scene.getBoundingClientRect();
-    const cx    = rect.left + rect.width / 2;
-    const cy    = rect.top  + rect.height / 2;
+  // ── SHAKE TO OPEN GIFT ──
+  let shakeCount   = 0;
+  const SHAKES_NEEDED = 6;
+  let   lastShake  = 0;
+  let   giftOpened = false;
+  let   lastAcc    = { x: 0, y: 0, z: 0 };
 
-    // hide hint
-    document.getElementById('piggy-hint').style.opacity = '0';
+  const progressCircle = document.getElementById('shake-progress');
+  const circumference  = 2 * Math.PI * 75; // 471
 
-    // generate ceramic shard pieces flying out
-    const shardColors = ['#E8A0A8','#F2B8BE','#C47B8A','#D4929F','#F2E0E4','#B89A72'];
-    const shardCount  = 18;
-    for (let i = 0; i < shardCount; i++) {
-      const shard = document.createElement('div');
-      shard.className = 'shard';
+  function updateRing(pct) {
+    if (!progressCircle) return;
+    progressCircle.style.strokeDashoffset = circumference * (1 - pct);
+  }
 
-      const angle  = (i / shardCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
-      const dist   = 80 + Math.random() * 160;
+  function triggerShakeAnim() {
+    const wrap = document.getElementById('gift-box-wrap');
+    wrap.classList.remove('idle', 'shaking');
+    void wrap.offsetWidth;
+    wrap.classList.add('shaking');
+    wrap.addEventListener('animationend', () => {
+      wrap.classList.remove('shaking');
+      wrap.classList.add('idle');
+    }, { once: true });
+  }
+
+  function openGift() {
+    if (giftOpened) return;
+    giftOpened = true;
+
+    const wrap = document.getElementById('gift-box-wrap');
+    const rect = wrap.getBoundingClientRect();
+    const cx   = rect.left + rect.width  / 2;
+    const cy   = rect.top  + rect.height / 2;
+
+    // hide instruction + hint
+    document.getElementById('shake-instruction').style.opacity = '0';
+    document.getElementById('piggy-hint').style.opacity        = '0';
+
+    // explode animation
+    wrap.classList.remove('idle', 'shaking');
+    wrap.classList.add('exploding');
+
+    // burst particles — ribbons, sparks, confetti
+    const colors = ['#C47B8A','#E8C97A','#F2E0E4','#B89A72','#D4929F','#FAF7F2','#E8A0A8'];
+    for (let i = 0; i < 28; i++) {
+      const el    = document.createElement('div');
+      el.className = 'shard';
+      const angle  = Math.random() * Math.PI * 2;
+      const dist   = 80 + Math.random() * 200;
       const tx     = Math.cos(angle) * dist;
-      const ty     = Math.sin(angle) * dist + 60; // gravity pull
-      const rot    = (Math.random() - 0.5) * 600;
-      const dur    = (0.5 + Math.random() * 0.4).toFixed(2);
-      const size   = 12 + Math.random() * 28;
-      const color  = shardColors[Math.floor(Math.random() * shardColors.length)];
-
-      // irregular shard shapes via clip-path
-      const clips  = [
-        'polygon(50% 0%, 100% 50%, 70% 100%, 0% 80%)',
-        'polygon(20% 0%, 100% 20%, 80% 100%, 0% 60%)',
-        'polygon(50% 0%, 100% 100%, 0% 80%)',
-        'polygon(0% 20%, 80% 0%, 100% 70%, 30% 100%)',
-        'polygon(40% 0%, 100% 40%, 60% 100%, 0% 60%)',
-      ];
-      const clip = clips[Math.floor(Math.random() * clips.length)];
-
-      shard.style.cssText = `
-        left: ${cx - size/2}px;
-        top:  ${cy - size/2}px;
-        width: ${size}px;
-        height: ${size}px;
-        background: ${color};
-        clip-path: ${clip};
-        --tx: ${tx}px;
-        --ty: ${ty}px;
-        --rot: ${rot}deg;
-        --dur: ${dur}s;
-        z-index: 500;
+      const ty     = Math.sin(angle) * dist + 60;
+      const rot    = (Math.random() - 0.5) * 720;
+      const dur    = (0.5 + Math.random() * 0.5).toFixed(2);
+      const w      = 6  + Math.random() * 18;
+      const h      = Math.random() > 0.5 ? w : w * 0.4;
+      const color  = colors[Math.floor(Math.random() * colors.length)];
+      el.style.cssText = `
+        left:${cx}px; top:${cy}px;
+        width:${w}px; height:${h}px;
+        background:${color};
+        border-radius:${h < 6 ? '0' : '2px'};
+        --tx:${tx}px; --ty:${ty}px;
+        --rot:${rot}deg; --dur:${dur}s;
+        z-index:500;
       `;
-      document.body.appendChild(shard);
-      setTimeout(() => shard.remove(), parseFloat(dur) * 1000 + 100);
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), parseFloat(dur) * 1000 + 100);
     }
 
-    // also scatter some coins
-    for (let i = 0; i < 10; i++) {
-      const coin = document.createElement('div');
-      const angle = (Math.random()) * Math.PI * 2;
-      const dist  = 60 + Math.random() * 120;
-      const tx    = Math.cos(angle) * dist;
-      const ty    = Math.sin(angle) * dist + 80;
-      const dur   = (0.6 + Math.random() * 0.5).toFixed(2);
-      const size  = 10 + Math.random() * 10;
-      coin.className = 'shard';
-      coin.style.cssText = `
-        left: ${cx - size/2}px;
-        top:  ${cy - size/2}px;
-        width: ${size}px; height: ${size}px;
-        background: #E8C97A;
-        border-radius: 50%;
-        border: 2px solid #B89A72;
-        --tx: ${tx}px; --ty: ${ty}px;
-        --rot: ${(Math.random()-0.5)*360}deg;
-        --dur: ${dur}s;
-        z-index: 500;
-      `;
-      document.body.appendChild(coin);
-      setTimeout(() => coin.remove(), parseFloat(dur) * 1000 + 100);
-    }
-
-    // hide piggy after a brief delay, show voucher
+    // hide box, show voucher
     setTimeout(() => {
-      scene.style.transition = 'opacity 0.2s, transform 0.2s';
-      scene.style.opacity    = '0';
-      scene.style.transform  = 'scale(0.5)';
-    }, 150);
-
-    setTimeout(() => {
-      scene.style.display = 'none';
-      const card = document.getElementById('voucher-card');
-      card.classList.add('visible');
+      wrap.style.display = 'none';
+      document.getElementById('voucher-card').classList.add('visible');
       document.getElementById('piggy-done').style.opacity = '1';
-    }, 500);
+    }, 420);
 
     // scroll nudge after 10s
     setTimeout(() => {
@@ -842,6 +859,47 @@
       nudge.style.opacity = '1';
       nudge.addEventListener('click', () => goTo(3));
     }, 10000);
+  }
+
+  // DeviceMotion (mobile shake)
+  function handleMotion(e) {
+    if (giftOpened) return;
+    const acc = e.accelerationIncludingGravity || e.acceleration;
+    if (!acc) return;
+    const dx = Math.abs((acc.x||0) - lastAcc.x);
+    const dy = Math.abs((acc.y||0) - lastAcc.y);
+    const dz = Math.abs((acc.z||0) - lastAcc.z);
+    lastAcc  = { x: acc.x||0, y: acc.y||0, z: acc.z||0 };
+    const force = dx + dy + dz;
+    const now   = Date.now();
+    if (force > 18 && now - lastShake > 300) {
+      lastShake  = now;
+      shakeCount = Math.min(shakeCount + 1, SHAKES_NEEDED);
+      updateRing(shakeCount / SHAKES_NEEDED);
+      triggerShakeAnim();
+      if (shakeCount >= SHAKES_NEEDED) openGift();
+    }
+  }
+
+  // Request permission on iOS 13+, then listen
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    // iOS: need a tap to request permission
+    document.getElementById('gift-box-wrap').addEventListener('click', () => {
+      DeviceMotionEvent.requestPermission().then(state => {
+        if (state === 'granted') window.addEventListener('devicemotion', handleMotion);
+      }).catch(()=>{});
+    }, { once: true });
+    // update hint for iOS
+    const hint = document.getElementById('piggy-hint');
+    if (hint) hint.textContent = '👆 Натисни и после разклати!';
+  } else if (typeof DeviceMotionEvent !== 'undefined') {
+    // Android & others
+    window.addEventListener('devicemotion', handleMotion);
+  } else {
+    // Desktop fallback — click to open
+    const hint = document.getElementById('piggy-hint');
+    if (hint) hint.textContent = '👆 Натисни, за да отвориш!';
+    document.getElementById('gift-box-wrap').addEventListener('click', openGift);
   }
 
   // ── CONFETTI ──
