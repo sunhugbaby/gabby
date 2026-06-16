@@ -504,8 +504,8 @@
 <!-- ── S1: GREETING ── -->
 <section id="s1">
   <div class="greeting-inner">
-    <p class="eyebrow">25 · 18.06.2026 </p>
-    <h1>Честит Рожден ден<br><em>Габи</em>!</h1>
+    <p class="eyebrow">25 · 18.06.2026</p>
+    <h1>Честит Рожден Ден<br><em>Габи</em>!</h1>
     <div class="divider">
       <div class="divider-line"></div>
       <span class="divider-ornament">✦</span>
@@ -531,7 +531,7 @@
       да обичаш безгрижно
       и да намираш магия в малките неща."
     </blockquote>
-    <p class="wish-names reveal reveal-delay-2">— с любов, твоите дружки</p>
+    <p class="wish-names reveal reveal-delay-2">— с любов, твоите приятели</p>
   </div>
 </section>
 
@@ -540,7 +540,7 @@
   <div class="piggy-header">
     <p class="eyebrow reveal">И сега…</p>
     <h2 class="reveal reveal-delay-1"><em>твоят подарък</em></h2>
-    <p class="reveal reveal-delay-2" id="shake-instruction">Разклати телефона, за да го отвориш 🎁</p>
+    <p class="reveal reveal-delay-2" id="shake-instruction">Натисни кутията няколко пъти, за да я отвориш 🎁</p>
   </div>
 
   <div class="gift-box-wrap idle reveal reveal-delay-2" id="gift-box-wrap">
@@ -584,7 +584,7 @@
     <div class="v-sub">Важи 12 месеца · makaroon.bg</div>
   </div>
 
-  <p class="piggy-hint" id="piggy-hint">📱 Разклати телефона!</p>
+  <p class="piggy-hint" id="piggy-hint">👆 Натисни кутията!</p>
   <p class="piggy-done-msg" id="piggy-done">🎉 Честито! Ваучерът е твой!</p>
   <p class="piggy-scroll-nudge" id="piggy-nudge">↓ Виж какво можеш да направиш с него</p>
 </section>
@@ -776,22 +776,20 @@
     isPlaying = !isPlaying;
   }
 
-  // ── SHAKE TO OPEN GIFT ──
-  let shakeCount   = 0;
-  const SHAKES_NEEDED = 6;
-  let   lastShake  = 0;
-  let   giftOpened = false;
-  let   lastAcc    = { x: 0, y: 0, z: 0 };
+  // ── TAP TO OPEN GIFT ──
+  let tapCount    = 0;
+  const TAPS_NEEDED = 5;
+  let   giftOpened  = false;
 
   const progressCircle = document.getElementById('shake-progress');
-  const circumference  = 2 * Math.PI * 75; // 471
+  const circumference  = 2 * Math.PI * 75;
 
   function updateRing(pct) {
     if (!progressCircle) return;
     progressCircle.style.strokeDashoffset = circumference * (1 - pct);
   }
 
-  function triggerShakeAnim() {
+  function triggerBounce() {
     const wrap = document.getElementById('gift-box-wrap');
     wrap.classList.remove('idle', 'shaking');
     void wrap.offsetWidth;
@@ -800,6 +798,33 @@
       wrap.classList.remove('shaking');
       wrap.classList.add('idle');
     }, { once: true });
+  }
+
+  function smallConfettiBurst(cx, cy) {
+    const colors = ['#C47B8A','#E8C97A','#F2E0E4','#B89A72','#D4929F','#E8A0A8'];
+    for (let i = 0; i < 14; i++) {
+      const el    = document.createElement('div');
+      el.className = 'shard';
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 30 + Math.random() * 80;
+      const tx    = Math.cos(angle) * dist;
+      const ty    = Math.sin(angle) * dist - 20;
+      const rot   = (Math.random() - 0.5) * 360;
+      const dur   = (0.4 + Math.random() * 0.3).toFixed(2);
+      const size  = 5 + Math.random() * 8;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      el.style.cssText = `
+        left:${cx}px; top:${cy}px;
+        width:${size}px; height:${size}px;
+        background:${color};
+        border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+        --tx:${tx}px; --ty:${ty}px;
+        --rot:${rot}deg; --dur:${dur}s;
+        z-index:500;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), parseFloat(dur) * 1000 + 100);
+    }
   }
 
   function openGift() {
@@ -811,25 +836,23 @@
     const cx   = rect.left + rect.width  / 2;
     const cy   = rect.top  + rect.height / 2;
 
-    // hide instruction + hint
     document.getElementById('shake-instruction').style.opacity = '0';
     document.getElementById('piggy-hint').style.opacity        = '0';
 
-    // explode animation
     wrap.classList.remove('idle', 'shaking');
     wrap.classList.add('exploding');
 
-    // burst particles — ribbons, sparks, confetti
+    // big final burst
     const colors = ['#C47B8A','#E8C97A','#F2E0E4','#B89A72','#D4929F','#FAF7F2','#E8A0A8'];
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < 40; i++) {
       const el    = document.createElement('div');
       el.className = 'shard';
       const angle  = Math.random() * Math.PI * 2;
-      const dist   = 80 + Math.random() * 200;
+      const dist   = 80 + Math.random() * 220;
       const tx     = Math.cos(angle) * dist;
-      const ty     = Math.sin(angle) * dist + 60;
+      const ty     = Math.sin(angle) * dist + 40;
       const rot    = (Math.random() - 0.5) * 720;
-      const dur    = (0.5 + Math.random() * 0.5).toFixed(2);
+      const dur    = (0.5 + Math.random() * 0.6).toFixed(2);
       const w      = 6  + Math.random() * 18;
       const h      = Math.random() > 0.5 ? w : w * 0.4;
       const color  = colors[Math.floor(Math.random() * colors.length)];
@@ -846,14 +869,12 @@
       setTimeout(() => el.remove(), parseFloat(dur) * 1000 + 100);
     }
 
-    // hide box, show voucher
     setTimeout(() => {
       wrap.style.display = 'none';
       document.getElementById('voucher-card').classList.add('visible');
       document.getElementById('piggy-done').style.opacity = '1';
     }, 420);
 
-    // scroll nudge after 10s
     setTimeout(() => {
       const nudge = document.getElementById('piggy-nudge');
       nudge.style.opacity = '1';
@@ -861,46 +882,22 @@
     }, 10000);
   }
 
-  // DeviceMotion (mobile shake)
-  function handleMotion(e) {
+  function onGiftTap(e) {
     if (giftOpened) return;
-    const acc = e.accelerationIncludingGravity || e.acceleration;
-    if (!acc) return;
-    const dx = Math.abs((acc.x||0) - lastAcc.x);
-    const dy = Math.abs((acc.y||0) - lastAcc.y);
-    const dz = Math.abs((acc.z||0) - lastAcc.z);
-    lastAcc  = { x: acc.x||0, y: acc.y||0, z: acc.z||0 };
-    const force = dx + dy + dz;
-    const now   = Date.now();
-    if (force > 18 && now - lastShake > 300) {
-      lastShake  = now;
-      shakeCount = Math.min(shakeCount + 1, SHAKES_NEEDED);
-      updateRing(shakeCount / SHAKES_NEEDED);
-      triggerShakeAnim();
-      if (shakeCount >= SHAKES_NEEDED) openGift();
+    e.preventDefault();
+    tapCount++;
+    updateRing(tapCount / TAPS_NEEDED);
+    const rect = document.getElementById('gift-box-wrap').getBoundingClientRect();
+    smallConfettiBurst(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    if (tapCount >= TAPS_NEEDED) {
+      openGift();
+    } else {
+      triggerBounce();
     }
   }
 
-  // Request permission on iOS 13+, then listen
-  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-    // iOS: need a tap to request permission
-    document.getElementById('gift-box-wrap').addEventListener('click', () => {
-      DeviceMotionEvent.requestPermission().then(state => {
-        if (state === 'granted') window.addEventListener('devicemotion', handleMotion);
-      }).catch(()=>{});
-    }, { once: true });
-    // update hint for iOS
-    const hint = document.getElementById('piggy-hint');
-    if (hint) hint.textContent = '👆 Натисни и после разклати!';
-  } else if (typeof DeviceMotionEvent !== 'undefined') {
-    // Android & others
-    window.addEventListener('devicemotion', handleMotion);
-  } else {
-    // Desktop fallback — click to open
-    const hint = document.getElementById('piggy-hint');
-    if (hint) hint.textContent = '👆 Натисни, за да отвориш!';
-    document.getElementById('gift-box-wrap').addEventListener('click', openGift);
-  }
+  document.getElementById('gift-box-wrap').addEventListener('click',      onGiftTap);
+  document.getElementById('gift-box-wrap').addEventListener('touchstart', onGiftTap, { passive: false });
 
   // ── CONFETTI ──
   const CONFETTI_COLORS = ['#C47B8A','#B89A72','#F2E0E4','#3A2E2A','#E8C97A','#5C8FAA','#6B8A50'];
